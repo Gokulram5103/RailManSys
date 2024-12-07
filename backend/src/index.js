@@ -1,24 +1,25 @@
 import express from 'express';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
-import db from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import cors from 'cors';
+import trainRoutes from './routes/trainRoutes.js';
+import seatRoutes from './routes/trainSeats.js'; 
+import bookingRoutes from './routes/bookingRoutes.js';
+import seats from './routes/getSeatRutes.js';  
+import bookDetails from './routes/bookDetails.js';
+
 
 const app = express();
-
-dotenv.config()
-
 app.use(express.json());
-app.use(morgan("dev"));
-app.get('/test', (req, res) => {
+app.use(cors()); 
+app.use('/api/auth', authRoutes); // user / admin auth with rbac
+app.use('/api/trains', trainRoutes); // admin add trains
+app.use('/api/seats', seatRoutes); // admin add seats for train 
 
-    res.status(200).send("<h1>Node js is running ....</h1>")
-})
+app.use('/api', seats); // this is for user see the no of seats available 
 
-db.getConnection()
-  .then(() => console.log('Database connected successfully!'))
-  .catch((err) => console.error('Database connection failed:', err));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, ()=>{
-    console.log(`Running port ${PORT}`);
+app.use('/api/bookings', bookingRoutes); // // this is for user to book a seat 
+app.use('/api', bookDetails); // user get booking details
+const PORT = 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
